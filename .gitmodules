@@ -1,0 +1,3 @@
+[submodule "tree-sitter-scribl"]
+	path = tree-sitter-scribl
+	url = https://github.com/scribhneoir/tree-sitter-scribl.git

@@ -1,0 +1,33 @@
+{
+  "name": "scribl-js",
+  "version": "0.1.0",
+  "description": "An interpreter for the Scribl toy language",
+  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "build:parser": "cd tree-sitter-scribl && pnpm install && pnpm run build",
+    "dev": "node --experimental-strip-types src/index.ts",
+    "start": "node dist/index.js",
+    "test": "vitest",
+    "type-check": "tsc --noEmit",
+    "setup": "git submodule update --init --recursive && pnpm install && pnpm run build:parser"
+  },
+  "keywords": [
+    "scribl",
+    "interpreter",
+    "tree-sitter"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.14"
+  },
+  "dependencies": {
+    "tree-sitter": "^0.25.0",
+    "tree-sitter-cli": "^0.25.10"
+  },
+  "packageManager": "pnpm@10.12.2+sha512.a32540185b964ee30bb4e979e405adc6af59226b438ee4cc19f9e8773667a66d302f5bfee60a39d3cac69e35e4b96e708a71dd002b7e9359c4112a1722ac323f"
+}
