@@ -40,8 +40,8 @@ async function main() {
 
     // Execute the program
     console.log("Executing...\n");
-    const result = interpreter.evaluate(tree.rootNode, env);
-    console.log("\nResult:", result);
+    const result = interpreter.evaluate(tree.rootNode, env) as any;
+    console.log("\nResult:", result.environment.variables);
   } catch (error) {
     console.error("Error:", error instanceof Error ? error.message : error);
     if (error instanceof Error && error.stack) {

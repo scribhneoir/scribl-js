@@ -1,5 +1,7 @@
 // Simple Scribl example
-40 + 2;
-test: 20;
-test + 10;
-test = 30;
+test= {
+  a:2;
+  x={
+    y:a+1;
+  };
+}.x.y;

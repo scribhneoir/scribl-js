@@ -2,6 +2,7 @@ import Parser from "tree-sitter";
 import {
   type RuntimeValue,
   type Environment,
+  type BlockValue,
   makeVoid,
   ValueType,
   makeBlock,
@@ -28,6 +29,9 @@ export class Interpreter {
       case "assignment_expression":
         return this.evaluateAssignmentExpression(node, env);
 
+      case "member_expression":
+        return this.evaluateMemberExpression(node, env);
+
       case "number":
         return this.evaluateNumberLiteral(node, env);
 
@@ -48,6 +52,21 @@ export class Interpreter {
         console.warn(`Node text: ${node.text}`);
         return makeVoid();
     }
+  }
+
+  private evaluateMemberExpression(
+    node: Parser.SyntaxNode,
+    env: Environment,
+  ): RuntimeValue {
+    const [lhe, _, rhe] = node.children;
+    const lhValue = this.evaluate(lhe, env);
+    if (lhValue.type !== ValueType.Block) {
+      console.warn(
+        `Left hand side of member expression is not a block: ${lhValue.type}}`,
+      );
+      return makeVoid();
+    }
+    return (lhValue as BlockValue).environment.lookup(rhe.text);
   }
 
   private evaluateBlock(
