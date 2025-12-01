@@ -4,6 +4,7 @@ import {
   type Environment,
   makeVoid,
   ValueType,
+  makeBlock,
 } from "../runtime/values.ts";
 
 export class Interpreter {
@@ -53,10 +54,10 @@ export class Interpreter {
     node: Parser.SyntaxNode,
     env: Environment,
   ): RuntimeValue {
-    let result: RuntimeValue = makeVoid();
+    let result = makeBlock(env.extend());
 
     for (const statement of node.children) {
-      result = this.evaluate(statement, env);
+      this.evaluate(statement, result.environment);
     }
 
     return result;

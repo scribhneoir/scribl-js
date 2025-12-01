@@ -15,10 +15,7 @@ git submodule update --init --recursive
 pnpm install
 
 # Build the tree-sitter parser (required before running)
-cd tree-sitter-scribl
-pnpm install
-pnpm run build
-cd ..
+pnpm run build:parser
 
 # Build the interpreter
 pnpm run build
@@ -41,6 +38,26 @@ pnpm start examples/hello.scribl
 ```
 
 ## Development
+
+### Parser Development
+
+When working on the grammar (`tree-sitter-scribl/grammar.js`):
+
+```bash
+# After grammar changes - clean rebuild (recommended)
+pnpm run build:parser:clean
+
+# Regular rebuild (minor changes)
+pnpm run build:parser
+
+# Test the parser
+pnpm run parser:test
+
+# Generate grammar only
+pnpm run parser:generate
+```
+
+### Main Project Development
 
 ```bash
 # Type check
@@ -96,8 +113,8 @@ Based on [tree-sitter-scribl](https://github.com/scribhneoir/tree-sitter-scribl)
 - Comparison: `<`, `<=`, `>`, `>=`, `==`, `!=`
 - Logical: `&&`, `||`
 - Bitwise: `&`, `|`, `^`, `<<`, `>>`, `>>>`
-- Unary: `!`, `~`, `-`, `+`
-- Assignment: `=`
+- Unary: `!`, `~`, `-`
+- Assignment: `=`, `:`
 - Spread: `...`
 
 ### Advanced Features
@@ -108,6 +125,18 @@ Based on [tree-sitter-scribl](https://github.com/scribhneoir/tree-sitter-scribl)
 ### Syntax Notes
 - Statements must end with semicolons (`;`)
 - Comments: `// single line` and `/* multi-line */`
+
+## Parser Build Troubleshooting
+
+If you encounter issues with the parser not recognizing new grammar features:
+
+1. **Clean rebuild**: `pnpm run build:parser:clean`
+2. **Verify tests**: `pnpm run parser:test`
+3. **Check generated files**: Ensure `tree-sitter-scribl/src/parser.c` exists and is recent
+
+The key difference between build commands:
+- `build:parser`: Regular rebuild, faster but may not catch all changes
+- `build:parser:clean`: Removes all generated files and rebuilds from scratch (use after grammar changes)
 
 ## Implementing the Interpreter
 
