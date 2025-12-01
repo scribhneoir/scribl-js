@@ -24,6 +24,9 @@ export class Interpreter {
       case "binary_expression":
         return this.evaluateBinaryExpression(node, env);
 
+      case "assignment_expression":
+        return this.evaluateAssignmentExpression(node, env);
+
       case "number":
         return this.evaluateNumberLiteral(node, env);
 
@@ -32,6 +35,9 @@ export class Interpreter {
 
       case "boolean":
         return this.evaluateBooleanLiteral(node, env);
+
+      case "identifier":
+        return this.evaluateIdentifier(node, env);
 
       case "comment":
         return makeVoid();
@@ -133,7 +139,7 @@ export class Interpreter {
     const [lhe, op, rhe] = node.children;
     if (!lhe || !op || !rhe) {
       console.warn(
-        `Missing children in binary expression: [${lhe},${op}${rhe}]}`,
+        `Missing children in binary expression: [${lhe},${op},${rhe}]}`,
       );
       return makeVoid();
     }
@@ -545,6 +551,34 @@ export class Interpreter {
     return lhValue;
   }
 
+  private evaluateAssignmentExpression(
+    node: Parser.SyntaxNode,
+    env: Environment,
+  ): RuntimeValue {
+    const [lhNode, op, rhe] = node.children;
+    if (!lhNode || !op || !rhe) {
+      console.warn(
+        `Missing children in assignment expression: [${lhNode},${op},${rhe}]}`,
+      );
+      return makeVoid();
+    }
+
+    const constantAssignment = op.text.includes("=");
+
+    //TODO: handle binary op assignments (ie +=)
+
+    const rhValue = this.evaluate(rhe, env);
+
+    //TODO: destructure from block
+    // TODO: destructure from itterator
+    switch (lhNode.type) {
+      case "identifier":
+        return env.assign(lhNode.text, rhValue, constantAssignment);
+      default:
+        return makeVoid();
+    }
+  }
+
   private evaluateNumberLiteral(
     node: Parser.SyntaxNode,
     _: Environment,
@@ -562,6 +596,14 @@ export class Interpreter {
   ): RuntimeValue {
     const value = String(node.text);
     return { type: ValueType.String, value };
+  }
+
+  private evaluateIdentifier(
+    node: Parser.SyntaxNode,
+    env: Environment,
+  ): RuntimeValue {
+    const id = node.text;
+    return env.lookup(id);
   }
 
   private evaluateBooleanLiteral(

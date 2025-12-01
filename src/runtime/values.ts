@@ -97,7 +97,7 @@ export function makeFunction(
  */
 export class Environment {
   private parent?: Environment;
-  private variables: Map<string, RuntimeValue>;
+  private variables: Map<string, { value: RuntimeValue; constant: boolean }>;
 
   constructor(parent?: Environment) {
     this.parent = parent;
@@ -105,22 +105,17 @@ export class Environment {
   }
 
   /**
-   * Declare a new variable in the current scope
+   * Assign a variable
    */
-  declare(name: string, value: RuntimeValue): RuntimeValue {
-    if (this.variables.has(name)) {
-      throw new Error(`Variable '${name}' already declared in this scope`);
-    }
-    this.variables.set(name, value);
-    return value;
-  }
-
-  /**
-   * Assign a value to an existing variable
-   */
-  assign(name: string, value: RuntimeValue): RuntimeValue {
+  assign(name: string, value: RuntimeValue, constant = true): RuntimeValue {
     const env = this.resolve(name);
-    env.variables.set(name, value);
+    if (env !== null) {
+      const existing = env.variables.get(name)!;
+      if (existing.constant) {
+        throw new Error(`Variable '${name}' already declared in this scope`);
+      }
+    }
+    this.variables.set(name, { value, constant });
     return value;
   }
 
@@ -129,13 +124,16 @@ export class Environment {
    */
   lookup(name: string): RuntimeValue {
     const env = this.resolve(name);
-    return env.variables.get(name)!;
+    if (env === null) {
+      return makeVoid();
+    }
+    return env.variables.get(name)?.value!;
   }
 
   /**
    * Resolve the environment containing the variable
    */
-  resolve(name: string): Environment {
+  resolve(name: string): Environment | null {
     if (this.variables.has(name)) {
       return this;
     }
@@ -144,7 +142,7 @@ export class Environment {
       return this.parent.resolve(name);
     }
 
-    throw new Error(`Undefined variable '${name}'`);
+    return null;
   }
 
   /**
