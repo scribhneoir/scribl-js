@@ -1,4 +1,5 @@
 import type { Environment } from "./environment";
+import Parser from "tree-sitter";
 
 /**
  * Runtime value types for the Scribl interpreter
@@ -51,10 +52,8 @@ export type FunctionCall = (
 
 export interface FunctionValue extends RuntimeValue {
   type: typeof ValueType.Function;
-  name: string;
   parameters: string[];
-  body: any; // AST node
-  closure: Environment;
+  body: Parser.SyntaxNode; // AST node
 }
 
 // Helper functions to create runtime values
@@ -79,17 +78,14 @@ export function makeBlock(environment: Environment): BlockValue {
 }
 
 export function makeFunction(
-  name: string,
   parameters: string[],
-  body: any,
-  closure: Environment,
+  body: Parser.SyntaxNode,
+  // environment: Environment,
 ): FunctionValue {
   return {
     type: ValueType.Function,
     value: null,
-    name,
     parameters,
     body,
-    closure,
   };
 }

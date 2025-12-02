@@ -2,6 +2,7 @@ import {
   type RuntimeValue,
   ValueType,
   type BlockValue,
+  type FunctionValue,
   makeVoid,
   makeBlock,
 } from "./values.ts";
@@ -114,10 +115,20 @@ export class Environment {
     for (const [id, val] of this.variables.entries()) {
       const constant = val.constant;
       const rValue = val.value;
-      if (rValue.type === ValueType.Block) {
-        res[id] = (rValue as BlockValue).environment.getAssignments();
-      } else {
-        res[id] = { value: rValue.value, constant };
+
+      switch (rValue.type) {
+        case ValueType.Block:
+          res[id] = (rValue as BlockValue).environment.getAssignments();
+          break;
+        case ValueType.Function:
+          res[id] = {
+            params: (rValue as FunctionValue).parameters,
+            body: (rValue as FunctionValue).body.text.replace(/\s+/g, " "),
+            constant,
+          };
+          break;
+        default:
+          res[id] = { value: rValue.value, constant };
       }
     }
     return res;

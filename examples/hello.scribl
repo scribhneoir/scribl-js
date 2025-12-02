@@ -1,6 +1,7 @@
 // Simple Scribl example
-test= {
-  a:{b:2;};
-};
-
-test.a.z = 3;
+  counter = {
+    count:0;
+    inc=(num){
+      count: count+num;
+    };
+  };

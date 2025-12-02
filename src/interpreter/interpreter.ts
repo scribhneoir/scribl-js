@@ -5,6 +5,7 @@ import {
   makeVoid,
   ValueType,
   makeBlock,
+  makeFunction,
 } from "../runtime/values.ts";
 
 import { Environment } from "../runtime/environment.ts";
@@ -32,6 +33,9 @@ export class Interpreter {
 
       case "member_expression":
         return this.evaluateMemberExpression(node, env);
+
+      case "function":
+        return this.evaluateFunction(node, env);
 
       case "number":
         return this.evaluateNumberLiteral(node, env);
@@ -590,6 +594,7 @@ export class Interpreter {
     //TODO: handle binary op assignments (ie +=)
 
     const rhValue = this.evaluate(rhe, env);
+    console.log(rhValue);
 
     //TODO: destructure from block
     // TODO: destructure from itterator
@@ -603,6 +608,17 @@ export class Interpreter {
       default:
         return makeVoid();
     }
+  }
+
+  private evaluateFunction(
+    node: Parser.SyntaxNode,
+    env: Environment,
+  ): RuntimeValue {
+    const body = node.children.at(-1)!;
+    const params = node.children
+      .filter((child) => child.type === "parameter")
+      .map((child) => child.text);
+    return makeFunction(params, body);
   }
 
   private evaluateNumberLiteral(
