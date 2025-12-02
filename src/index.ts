@@ -1,9 +1,10 @@
 #!/usr/bin/env node
-
+import { styleText } from "node:util";
 import { parseScriblFile } from "./parser/parser.ts";
 import { Interpreter } from "./interpreter/interpreter.ts";
 import { resolve } from "path";
-import { Environment } from "./runtime/values.ts";
+import type { BlockValue } from "./runtime/values.ts";
+import { Environment } from "./runtime/environment.ts";
 
 async function main() {
   const args = process.argv.slice(2);
@@ -20,18 +21,21 @@ async function main() {
 
   try {
     // Parse the source file
-    console.log(`Parsing ${filePath}...`);
+    console.log(
+      styleText(["bgYellow", "black", "bold"], `Parsing:`) +
+        styleText(["yellow", "italic"], ` ${filePath}...\n`),
+    );
     const tree = await parseScriblFile(filePath);
 
     // Check for parse errors
     if (tree.rootNode.hasError) {
-      console.error("Parse errors detected:");
-      console.error(tree.rootNode.toString());
+      console.error(styleText(["red", "bold"], "Parse errors detected:"));
+      console.error(styleText(["red", "italic"], tree.rootNode.toString()));
       process.exit(1);
     }
 
-    console.log("Parse tree:");
-    console.log(tree.rootNode.toString());
+    console.log(styleText(["bgYellow", "black", "bold"], "Parse tree:"));
+    console.log(styleText(["yellow", "italic"], tree.rootNode.toString()));
     console.log("");
 
     // Create interpreter and global environment
@@ -39,9 +43,14 @@ async function main() {
     const env = new Environment();
 
     // Execute the program
-    console.log("Executing...\n");
-    const result = interpreter.evaluate(tree.rootNode, env) as any;
-    console.log("\nResult:", result.environment.variables);
+    const result = interpreter.evaluate(tree.rootNode, env) as BlockValue;
+    console.log(styleText(["bgGreen", "black", "bold"], "Result:"));
+    console.log(
+      styleText(
+        ["green", "italic"],
+        JSON.stringify(result.environment.getAssignments(), null, 2),
+      ),
+    );
   } catch (error) {
     console.error("Error:", error instanceof Error ? error.message : error);
     if (error instanceof Error && error.stack) {

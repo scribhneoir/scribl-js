@@ -1,12 +1,13 @@
 import Parser from "tree-sitter";
 import {
   type RuntimeValue,
-  type Environment,
   type BlockValue,
   makeVoid,
   ValueType,
   makeBlock,
 } from "../runtime/values.ts";
+
+import { Environment } from "../runtime/environment.ts";
 
 export class Interpreter {
   /**
@@ -74,8 +75,9 @@ export class Interpreter {
     env: Environment,
   ): RuntimeValue {
     let result = makeBlock(env.extend());
-
-    for (const statement of node.children) {
+    for (const statement of node.children.filter(
+      (child) => child.type === "statement",
+    )) {
       this.evaluate(statement, result.environment);
     }
 
@@ -593,7 +595,11 @@ export class Interpreter {
     // TODO: destructure from itterator
     switch (lhNode.type) {
       case "identifier":
-        return env.assign(lhNode.text, rhValue, constantAssignment);
+        return env.assign(lhNode.text, { ...rhValue }, constantAssignment);
+      case "member_expression":
+        const path = lhNode.text.split(".");
+        const nestedEnv = env.resolveMemberPath(path);
+        return nestedEnv?.assign(path.at(-1) ?? "", rhValue).value;
       default:
         return makeVoid();
     }
@@ -623,7 +629,7 @@ export class Interpreter {
     env: Environment,
   ): RuntimeValue {
     const id = node.text;
-    return env.lookup(id);
+    return env.lookup(id).value;
   }
 
   private evaluateBooleanLiteral(

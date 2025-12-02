@@ -1,3 +1,5 @@
+import type { Environment } from "./environment";
+
 /**
  * Runtime value types for the Scribl interpreter
  */
@@ -90,65 +92,4 @@ export function makeFunction(
     body,
     closure,
   };
-}
-
-/**
- * Environment for variable storage and scoping
- */
-export class Environment {
-  private parent?: Environment;
-  private variables: Map<string, { value: RuntimeValue; constant: boolean }>;
-
-  constructor(parent?: Environment) {
-    this.parent = parent;
-    this.variables = new Map();
-  }
-
-  /**
-   * Assign a variable
-   */
-  assign(name: string, value: RuntimeValue, constant = true): RuntimeValue {
-    const env = this.resolve(name);
-    if (env !== null) {
-      const existing = env.variables.get(name)!;
-      if (existing.constant) {
-        throw new Error(`Variable '${name}' already declared in this scope`);
-      }
-    }
-    this.variables.set(name, { value, constant });
-    return value;
-  }
-
-  /**
-   * Look up a variable value
-   */
-  lookup(name: string): RuntimeValue {
-    const env = this.resolve(name);
-    if (env === null) {
-      return makeVoid();
-    }
-    return env.variables.get(name)?.value!;
-  }
-
-  /**
-   * Resolve the environment containing the variable
-   */
-  resolve(name: string): Environment | null {
-    if (this.variables.has(name)) {
-      return this;
-    }
-
-    if (this.parent) {
-      return this.parent.resolve(name);
-    }
-
-    return null;
-  }
-
-  /**
-   * Create a new child environment
-   */
-  extend(): Environment {
-    return new Environment(this);
-  }
 }
