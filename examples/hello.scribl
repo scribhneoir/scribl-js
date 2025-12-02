@@ -1,7 +1,6 @@
 // Simple Scribl example
 test= {
-  a:2;
-  x={
-    y:a+1;
-  };
-}.x.y;
+  a:{b:2;};
+};
+
+test.a.z = 3;
