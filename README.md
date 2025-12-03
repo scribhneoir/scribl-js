@@ -90,7 +90,7 @@ Based on [tree-sitter-scribl](https://github.com/scribhneoir/tree-sitter-scribl)
 - Ternary: `??`
 - Unary: `!`, `~`, `-`
 - Assignment: `=`, `:`
-- Spread: `...`
+- TODO: Spread: `...`
 
 ### Advanced Features
 - Member access: `obj.property`
