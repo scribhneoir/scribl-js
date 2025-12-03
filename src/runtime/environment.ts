@@ -28,6 +28,8 @@ export class Environment {
       if (existing.constant) {
         throw new Error(`Variable '${name}' already declared in this scope`);
       }
+      env.variables.set(name, { value, constant });
+      return value;
     }
     this.variables.set(name, { value, constant });
     return value;
@@ -122,7 +124,9 @@ export class Environment {
           break;
         case ValueType.Function:
           res[id] = {
-            params: (rValue as FunctionValue).parameters,
+            params: (rValue as FunctionValue).parameters.map((p) =>
+              p.text.trim(),
+            ),
             body: (rValue as FunctionValue).body.text.replace(/\s+/g, " "),
             constant,
           };

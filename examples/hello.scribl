@@ -1,7 +1,9 @@
 // Simple Scribl example
-  counter = {
-    count:0;
-    inc=(num){
-      count: count+num;
-    };
+num:0;
+  counter = (num<3){
+    num: num + 1;
   };
+counter();
+counter();
+counter();
+res = counter();

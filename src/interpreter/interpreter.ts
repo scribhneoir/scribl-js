@@ -6,6 +6,7 @@ import {
   ValueType,
   makeBlock,
   makeFunction,
+  type FunctionValue,
 } from "../runtime/values.ts";
 
 import { Environment } from "../runtime/environment.ts";
@@ -34,8 +35,14 @@ export class Interpreter {
       case "member_expression":
         return this.evaluateMemberExpression(node, env);
 
+      case "parenthesized_expression":
+        return this.evaluate(node.children[1], env);
+
       case "function":
         return this.evaluateFunction(node, env);
+
+      case "call_expression":
+        return this.evaluateCallExpression(node, env);
 
       case "number":
         return this.evaluateNumberLiteral(node, env);
@@ -71,7 +78,7 @@ export class Interpreter {
       );
       return makeVoid();
     }
-    return (lhValue as BlockValue).environment.lookup(rhe.text);
+    return (lhValue as BlockValue).environment.lookup(rhe.text).value;
   }
 
   private evaluateBlock(
@@ -222,7 +229,7 @@ export class Interpreter {
       case ">":
         return this.evaluateGreaterThanOp(lhValue, rhValue);
       case "??":
-        this.evaluateTernaryOp(lhValue, rhValue);
+        return this.evaluateTernaryOp(lhValue, rhValue);
 
       default:
         console.warn(`Unhandled op in binary expression: ${op}}`);
@@ -594,7 +601,6 @@ export class Interpreter {
     //TODO: handle binary op assignments (ie +=)
 
     const rhValue = this.evaluate(rhe, env);
-    console.log(rhValue);
 
     //TODO: destructure from block
     // TODO: destructure from itterator
@@ -610,6 +616,42 @@ export class Interpreter {
     }
   }
 
+  private evaluateCallExpression(
+    node: Parser.SyntaxNode,
+    env: Environment,
+  ): RuntimeValue {
+    const params = node.children.filter((child) => child.type === "parameter");
+    const argValues = params.map((param) =>
+      this.evaluate(param.children[0], env),
+    );
+
+    const fn = this.evaluate(node.children[0], env) as FunctionValue;
+    if (fn.type !== ValueType.Function) {
+      console.warn(`Attempting to call non-function type: ${fn.type}`);
+      return makeVoid();
+    }
+
+    const newEnv = fn.environment.extend();
+    for (let i = 0; i < fn.parameters.length; i++) {
+      const param = fn.parameters[i];
+
+      switch (param.type) {
+        case "identifier":
+          if (argValues.length > i) {
+            newEnv.assign(param.text, argValues[i]);
+          }
+          break;
+        default:
+          const res = this.evaluate(param, newEnv);
+          if (res.value === false) {
+            return makeVoid();
+          }
+      }
+    }
+
+    return this.evaluate(fn.body, newEnv);
+  }
+
   private evaluateFunction(
     node: Parser.SyntaxNode,
     env: Environment,
@@ -617,8 +659,8 @@ export class Interpreter {
     const body = node.children.at(-1)!;
     const params = node.children
       .filter((child) => child.type === "parameter")
-      .map((child) => child.text);
-    return makeFunction(params, body);
+      .map((param) => param.children[0]);
+    return makeFunction(params, body, env);
   }
 
   private evaluateNumberLiteral(

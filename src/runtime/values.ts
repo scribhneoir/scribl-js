@@ -52,8 +52,9 @@ export type FunctionCall = (
 
 export interface FunctionValue extends RuntimeValue {
   type: typeof ValueType.Function;
-  parameters: string[];
+  parameters: Parser.SyntaxNode[];
   body: Parser.SyntaxNode; // AST node
+  environment: Environment;
 }
 
 // Helper functions to create runtime values
@@ -78,14 +79,15 @@ export function makeBlock(environment: Environment): BlockValue {
 }
 
 export function makeFunction(
-  parameters: string[],
+  parameters: Parser.SyntaxNode[],
   body: Parser.SyntaxNode,
-  // environment: Environment,
+  environment: Environment,
 ): FunctionValue {
   return {
     type: ValueType.Function,
     value: null,
     parameters,
     body,
+    environment,
   };
 }
