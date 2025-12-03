@@ -73,9 +73,6 @@ export class Interpreter {
     const [lhe, _, rhe] = node.children;
     const lhValue = this.evaluate(lhe, env);
     if (lhValue.type !== ValueType.Block) {
-      console.warn(
-        `Left hand side of member expression is not a block: ${lhValue.type}}`,
-      );
       return makeVoid();
     }
     return (lhValue as BlockValue).environment.lookup(rhe.text).value;
