@@ -11,6 +11,7 @@ export const ValueType = {
   String: "string",
   Boolean: "boolean",
   Function: "function",
+  Iterator: "iterator",
   Block: "block",
 } as const;
 export type ValueType = (typeof ValueType)[keyof typeof ValueType];
@@ -45,15 +46,18 @@ export interface BlockValue extends RuntimeValue {
   environment: Environment;
 }
 
-export type FunctionCall = (
-  args: RuntimeValue[],
-  env: Environment,
-) => RuntimeValue;
-
 export interface FunctionValue extends RuntimeValue {
   type: typeof ValueType.Function;
   parameters: Parser.SyntaxNode[];
   body: Parser.SyntaxNode; // AST node
+  environment: Environment;
+}
+
+export interface IteratorValue extends RuntimeValue {
+  type: typeof ValueType.Iterator;
+  value: RuntimeValue[];
+  calculatorIndex: number;
+  parameters: Parser.SyntaxNode[];
   environment: Environment;
 }
 
@@ -88,6 +92,19 @@ export function makeFunction(
     value: null,
     parameters,
     body,
+    environment,
+  };
+}
+
+export function makeIterator(
+  parameters: Parser.SyntaxNode[],
+  environment: Environment,
+): IteratorValue {
+  return {
+    type: ValueType.Iterator,
+    value: [],
+    calculatorIndex: 0,
+    parameters,
     environment,
   };
 }

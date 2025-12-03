@@ -1,10 +1,19 @@
 // fibonacci sequence generator in Scribl
 
-  fib = (n){
-    res = (n<2){n;}().n ?? fib(n-1).res + fib(n-2).res;
-  };
+fib = (n){
+  res = (n<2){n;}().n ?? fib(n-1).res + fib(n-2).res;
+};
 
-  one = fib(1).res;
+// one = fib(1).res;
 
-  five = fib(6).res;
+// five = fib(6).res;
 
+i:0;
+fibItr = [
+  (i<10){
+    res= fib(i).res;
+    i: i+1;
+  }().res
+];
+
+eight = fibItr[6];

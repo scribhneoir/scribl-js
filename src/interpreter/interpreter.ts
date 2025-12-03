@@ -2,11 +2,13 @@ import Parser from "tree-sitter";
 import {
   type RuntimeValue,
   type BlockValue,
+  type IteratorValue,
   makeVoid,
   ValueType,
   makeBlock,
   makeFunction,
   type FunctionValue,
+  makeIterator,
 } from "../runtime/values.ts";
 
 import { Environment } from "../runtime/environment.ts";
@@ -43,6 +45,12 @@ export class Interpreter {
 
       case "call_expression":
         return this.evaluateCallExpression(node, env);
+
+      case "iterator":
+        return this.evaluateIterator(node, env);
+
+      case "subscript_expression":
+        return this.evaluateSubscriptExpression(node, env);
 
       case "number":
         return this.evaluateNumberLiteral(node, env);
@@ -662,6 +670,51 @@ export class Interpreter {
       .filter((child) => child.type === "parameter")
       .map((param) => param.children[0]);
     return makeFunction(params, body, env);
+  }
+
+  private evaluateSubscriptExpression(
+    node: Parser.SyntaxNode,
+    env: Environment,
+  ): RuntimeValue {
+    const id = this.evaluate(node.children[0], env) as IteratorValue;
+    const sub = this.evaluate(node.children[2], env);
+
+    if (id.type !== ValueType.Iterator) {
+      console.warn(`Attempting to subscript non-iterator type: ${id.type}`);
+      return makeVoid();
+    }
+    if (sub.type !== ValueType.Number) {
+      console.warn(`Attempting to subscript with non-number type: ${sub.type}`);
+      return makeVoid();
+    }
+
+    const valueIndex = sub.value;
+
+    if (!id.value?.[valueIndex]) {
+      for (let i = id.value.length; i <= valueIndex; i++) {
+        const calculatorNode = id.parameters[id.calculatorIndex];
+        if (!calculatorNode) {
+          break;
+        }
+        const result = this.evaluate(calculatorNode, env);
+        if (result.type === ValueType.Void) {
+          i--;
+          id.calculatorIndex++;
+          continue;
+        }
+        id.value.push(result);
+      }
+    }
+
+    return id.value[valueIndex] ?? makeVoid();
+  }
+
+  private evaluateIterator(
+    node: Parser.SyntaxNode,
+    env: Environment,
+  ): RuntimeValue {
+    const children = node.children.slice(1, -1);
+    return makeIterator(children, env);
   }
 
   private evaluateNumberLiteral(
