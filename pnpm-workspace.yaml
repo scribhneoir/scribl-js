@@ -1,7 +1,6 @@
 packages:
   - .
-
-onlyBuiltDependencies:
-  - esbuild
-  - tree-sitter
-  - tree-sitter-cli
+# onlyBuiltDependencies:
+#   - esbuild
+#   - tree-sitter
+#   - tree-sitter-cli

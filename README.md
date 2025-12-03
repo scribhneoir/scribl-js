@@ -5,7 +5,8 @@ An interpreter for the Scribl toy language, built with TypeScript and Tree-sitte
 ## Setup
 
 ```bash
-pnpm run setup
+git clone https://github.com/scribhneoir/scribl-js.git
+pnpm i
 ```
 
 ## Usage
@@ -22,11 +23,8 @@ pnpm run dev examples/hello.scribl
 The [tree-sitter-scribl](https://github.com/scribhneoir/tree-sitter-scribl) parser is included as a git submodule: `tree-sitter-scribl/grammar.js`. There are convenience scripts in this project's root to aid in development.
 
 ```bash
-# After grammar changes - clean rebuild (recommended)
-pnpm run build:parser:clean
-
-# Regular rebuild (minor changes)
-pnpm run build:parser
+# After grammar changes - clean rebuild
+pnpm run parser:build
 
 # Test the parser
 pnpm run parser:test

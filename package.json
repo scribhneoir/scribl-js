@@ -6,13 +6,12 @@
   "type": "module",
   "scripts": {
     "build": "tsc",
-    "build:parser": "cd tree-sitter-scribl && pnpm install && pnpm run build",
-    "build:parser:clean": "cd tree-sitter-scribl && pnpm run clean && pnpm run build",
+    "prepare": "git submodule update --init --recursive; cd tree-sitter-scribl; pnpm i",
     "dev": "node --experimental-strip-types src/index.ts",
     "start": "node dist/index.js",
     "test": "vitest",
     "type-check": "tsc --noEmit",
-    "setup": "git submodule update --init --recursive && pnpm install && pnpm run build:parser",
+    "parser:build": "cd tree-sitter-scribl && pnpm run clean && pnpm run build",
     "parser:test": "cd tree-sitter-scribl && pnpm run test",
     "parser:generate": "cd tree-sitter-scribl && pnpm run generate"
   },
