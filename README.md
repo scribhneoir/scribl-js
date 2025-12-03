@@ -5,24 +5,6 @@ An interpreter for the Scribl toy language, built with TypeScript and Tree-sitte
 ## Setup
 
 ```bash
-# Clone with submodules
-git clone --recurse-submodules <your-repo-url>
-
-# Or if already cloned, initialize submodules
-git submodule update --init --recursive
-
-# Install dependencies
-pnpm install
-
-# Build the tree-sitter parser (required before running)
-pnpm run build:parser
-
-# Build the interpreter
-pnpm run build
-```
-
-Or use the convenience script:
-```bash
 pnpm run setup
 ```
 
@@ -31,17 +13,13 @@ pnpm run setup
 ```bash
 # Run in development mode
 pnpm run dev examples/hello.scribl
-
-# Run compiled version
-pnpm run build
-pnpm start examples/hello.scribl
 ```
 
 ## Development
 
 ### Parser Development
 
-When working on the grammar (`tree-sitter-scribl/grammar.js`):
+The [tree-sitter-scribl](https://github.com/scribhneoir/tree-sitter-scribl) parser is included as a git submodule: `tree-sitter-scribl/grammar.js`. There are convenience scripts in this project's root to aid in development.
 
 ```bash
 # After grammar changes - clean rebuild (recommended)
@@ -80,11 +58,9 @@ scribl-js/
 │   │   ├── values.ts        # Runtime value types
 │   │   └── environment.ts   # Variable scoping
 │   ├── index.ts             # Main entry point
-│   └── cli.ts               # CLI utilities
 ├── tree-sitter-scribl/      # Git submodule with Scribl grammar
 ├── examples/                # Example Scribl programs
 │   └── hello.scribl         # Simple example
-├── binding.gyp              # Node.js native binding config
 ├── package.json             # Project configuration
 └── tsconfig.json            # TypeScript configuration
 ```
@@ -113,6 +89,7 @@ Based on [tree-sitter-scribl](https://github.com/scribhneoir/tree-sitter-scribl)
 - Comparison: `<`, `<=`, `>`, `>=`, `==`, `!=`
 - Logical: `&&`, `||`
 - Bitwise: `&`, `|`, `^`, `<<`, `>>`, `>>>`
+- Ternary: `??`
 - Unary: `!`, `~`, `-`
 - Assignment: `=`, `:`
 - Spread: `...`
@@ -120,36 +97,8 @@ Based on [tree-sitter-scribl](https://github.com/scribhneoir/tree-sitter-scribl)
 ### Advanced Features
 - Member access: `obj.property`
 - Subscript access: `arr[index]`
-- Destructuring: `{a, b} = obj`, `[x, y] = arr`
+- TODO: Destructuring: `{a, b} = obj`, `[x, y] = arr`
 
 ### Syntax Notes
-- Statements must end with semicolons (`;`)
+- Statements must end with semicolons `;`
 - Comments: `// single line` and `/* multi-line */`
-
-## Parser Build Troubleshooting
-
-If you encounter issues with the parser not recognizing new grammar features:
-
-1. **Clean rebuild**: `pnpm run build:parser:clean`
-2. **Verify tests**: `pnpm run parser:test`
-3. **Check generated files**: Ensure `tree-sitter-scribl/src/parser.c` exists and is recent
-
-The key difference between build commands:
-- `build:parser`: Regular rebuild, faster but may not catch all changes
-- `build:parser:clean`: Removes all generated files and rebuilds from scratch (use after grammar changes)
-
-## Implementing the Interpreter
-
-The scaffold provides:
-
-1. **Parser Integration** (`src/parser/`): Ready-to-use tree-sitter parser
-2. **Runtime Values** (`src/runtime/values.ts`): Type system for runtime values
-3. **Environment** (`src/runtime/environment.ts`): Variable scoping and built-ins
-4. **Interpreter Skeleton** (`src/interpreter/interpreter.ts`): Evaluation framework
-
-To implement the interpreter, add evaluation logic in `src/interpreter/interpreter.ts` for each node type from the grammar. The main `evaluate()` method dispatches based on `node.type`.
-
-## License
-
-MIT
-
