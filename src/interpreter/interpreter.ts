@@ -176,6 +176,10 @@ export class Interpreter {
       );
       return makeVoid();
     }
+
+    if (op.text === "??") {
+      return this.evaluateTernaryOp(lhe, rhe, env);
+    }
     const lhValue = this.evaluate(lhe, env);
     const rhValue = this.evaluate(rhe, env);
 
@@ -228,8 +232,6 @@ export class Interpreter {
         );
       case ">":
         return this.evaluateGreaterThanOp(lhValue, rhValue);
-      case "??":
-        return this.evaluateTernaryOp(lhValue, rhValue);
 
       default:
         console.warn(`Unhandled op in binary expression: ${op}}`);
@@ -575,11 +577,13 @@ export class Interpreter {
   }
 
   private evaluateTernaryOp(
-    lhValue: RuntimeValue,
-    rhValue: RuntimeValue,
+    lhe: Parser.SyntaxNode,
+    rhe: Parser.SyntaxNode,
+    env: Environment,
   ): RuntimeValue {
+    const lhValue = this.evaluate(lhe, env);
     if (lhValue.type === ValueType.Void || lhValue.value === false) {
-      return rhValue;
+      return this.evaluate(rhe, env);
     }
     return lhValue;
   }

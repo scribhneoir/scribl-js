@@ -1,9 +1,10 @@
-// Simple Scribl example
-num:0;
-  counter = (num<3){
-    num: num + 1;
+// fibonacci sequence generator in Scribl
+
+  fib = (n){
+    res = (n<2){n;}().n ?? fib(n-1).res + fib(n-2).res;
   };
-counter();
-counter();
-counter();
-res = counter();
+
+  one = fib(1).res;
+
+  five = fib(6).res;
+
